@@ -18,6 +18,7 @@ Hao Luo         2011/01/01        2.0           Change               luohao13568
 #ifndef INITIALIZE_H
 #define INITIALIZE_H 10000
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

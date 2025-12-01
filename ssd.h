@@ -15,6 +15,7 @@ Shuangwu Zhang  2011/11/01        2.1           Change               820876427@q
 Chao Ren        2011/07/01        2.0           Change               529517386@qq.com
 Hao Luo         2011/01/01        2.0           Change               luohao135680@gmail.com
  *****************************************************************************************************************************/
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
