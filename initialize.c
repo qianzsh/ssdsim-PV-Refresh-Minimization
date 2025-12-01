@@ -68,6 +68,8 @@ extern int freeFunc(TREE_NODE *pNode)
  *1.this function allocate memory for ssd structure 
  *2.set the infomation according to the parameter file
  *******************************************/
+struct ac_time_characteristics ac_timing;
+
 struct ssd_info *initiation(struct ssd_info *ssd)
 {
     unsigned int x=0,y=0,i=0,j=0,k=0,l=0,m=0,n=0;
