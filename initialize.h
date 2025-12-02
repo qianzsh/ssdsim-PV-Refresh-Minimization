@@ -288,6 +288,10 @@ struct blk_info{
     unsigned int invalid_page_num;     //记录该块中失效页的个数，同上
     int last_write_page;               //记录最近一次写操作执行的页数,-1表示该块没有一页被写过
     struct page_info *page_head;       //记录每一子页的状态
+    // >>>>>>>>>>> 新增 RTD 相關欄位 <<<<<<<<<<<
+    int pv_class;              // 製程變異類別 (1=弱, 2=中, 3=強)
+    long long expected_t_ret;  // 預期的資料保留時間 (單位：秒)
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 };
 
 

@@ -220,6 +220,9 @@ struct blk_info * initialize_block(struct blk_info * p_block,struct parameter_va
     unsigned int i;
     struct page_info * p_page;
 
+    p_block->pv_class = 3; // 強 PV
+    p_block->expected_t_ret = 60000; // 假設 T_RET_STRONG = 60000
+
     p_block->free_page_num = parameter->page_block;	// all pages are free
     p_block->last_write_page = -1;	// no page has been programmed
 
