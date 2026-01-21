@@ -4,12 +4,12 @@
 
   FileName： initialize.h
 Author: Hu Yang		Version: 2.1	Date:2011/12/02
-Description: 
+Description:
 
 History:
 <contributor>     <time>        <version>       <desc>                   <e-mail>
 Yang Hu	        2009/09/25	      1.0		    Creat SSDsim       yanghu@foxmail.com
-2010/05/01        2.x           Change 
+2010/05/01        2.x           Change
 Zhiming Zhu     2011/07/01        2.0           Change               812839842@qq.com
 Shuangwu Zhang  2011/11/01        2.1           Change               820876427@qq.com
 Chao Ren        2011/07/01        2.0           Change               529517386@qq.com
@@ -26,6 +26,8 @@ Hao Luo         2011/01/01        2.0           Change               luohao13568
 #include <ctype.h>
 #include <sys/types.h>
 #include "avlTree.h"
+
+
 
 #define SECTOR 512
 #define BUFSIZE 200
@@ -57,7 +59,7 @@ Hao Luo         2011/01/01        2.0           Change               luohao13568
 
 #define CHANNEL_IDLE 000
 #define CHANNEL_C_A_TRANSFER 3
-#define CHANNEL_GC 4           
+#define CHANNEL_GC 4
 #define CHANNEL_DATA_TRANSFER 7
 #define CHANNEL_TRANSFER 8
 #define CHANNEL_UNKNOWN 9
@@ -72,7 +74,7 @@ Hao Luo         2011/01/01        2.0           Change               luohao13568
 #define CHIP_COPYBACK_BUSY 110
 #define UNKNOWN 111
 
-#define SR_WAIT 200                 
+#define SR_WAIT 200
 #define SR_R_C_A_TRANSFER 201
 #define SR_R_READ 202
 #define SR_R_DATA_TRANSFER 203
@@ -91,15 +93,17 @@ Hao Luo         2011/01/01        2.0           Change               luohao13568
 #define GC_INTERRUPT 0
 #define GC_UNINTERRUPT 1
 
-#define CHANNEL(lsn) (lsn&0x0000)>>16      
-#define chip(lsn) (lsn&0x0000)>>16 
-#define die(lsn) (lsn&0x0000)>>16 
-#define PLANE(lsn) (lsn&0x0000)>>16 
-#define BLOKC(lsn) (lsn&0x0000)>>16 
-#define PAGE(lsn) (lsn&0x0000)>>16 
-#define SUBPAGE(lsn) (lsn&0x0000)>>16  
+#define CHANNEL(lsn) (lsn&0x0000)>>16
+#define chip(lsn) (lsn&0x0000)>>16
+#define die(lsn) (lsn&0x0000)>>16
+#define PLANE(lsn) (lsn&0x0000)>>16
+#define BLOKC(lsn) (lsn&0x0000)>>16
+#define PAGE(lsn) (lsn&0x0000)>>16
+#define SUBPAGE(lsn) (lsn&0x0000)>>16
 
-#define PG_SUB 0xffffffff			
+#define PG_SUB 0xffffffff
+
+
 
 /*****************************************
  *函数结果状态代码
@@ -112,7 +116,7 @@ Hao Luo         2011/01/01        2.0           Change               luohao13568
 #define ERROR		-1
 #define INFEASIBLE	-2
 #define OVERFLOW	-3
-typedef int Status;     
+typedef int Status;
 
 struct ac_time_characteristics{
     int tPROG;     //program time
@@ -153,9 +157,7 @@ struct ac_time_characteristics{
 
 extern struct ac_time_characteristics ac_timing;
 
-
-
-struct ssd_info{ 
+struct ssd_info{
     double ssd_energy;                   //SSD的能耗，是时间和芯片数的函数,能耗因子
     int64_t current_time;                //记录系统时间
     int64_t next_request_time;
@@ -215,6 +217,7 @@ struct ssd_info{
     struct sub_request *subs_w_tail;
     struct event_node *event;            //事件队列，每产生一个新的事件，按照时间顺序加到这个队列，在simulate函数最后，根据这个队列队首的时间，确定时间
     struct channel_info *channel_head;   //指向channel结构体数组的首地址
+    struct refresh_cursor scan_cursor;   // 紀錄背景掃描的當前位置
 };
 
 
@@ -236,7 +239,7 @@ struct channel_info{
     struct sub_request *subs_w_head;     //channel上的写请求队列头，先服务处于队列头的子请求
     struct sub_request *subs_w_tail;     //channel上的写请求队列，新加进来的子请求加到队尾
     struct gc_operation *gc_command;     //记录需要产生gc的位置
-    struct chip_info *chip_head;        
+    struct chip_info *chip_head;
 };
 
 
@@ -258,7 +261,7 @@ struct chip_info{
     unsigned long program_count;
     unsigned long erase_count;
 
-    struct ac_time_characteristics ac_timing;  
+    struct ac_time_characteristics ac_timing;
     struct die_info *die_head;
 };
 
@@ -272,7 +275,7 @@ struct die_info{
 
 
 struct plane_info{
-    int add_reg_ppn;                    //read，write时把地址传送到该变量，该变量代表地址寄存器。die由busy变为idle时，清除地址 //有可能因为一对多的映射，在一个读请求时，有多个相同的lpn，所以需要用ppn来区分  
+    int add_reg_ppn;                    //read，write时把地址传送到该变量，该变量代表地址寄存器。die由busy变为idle时，清除地址 //有可能因为一对多的映射，在一个读请求时，有多个相同的lpn，所以需要用ppn来区分
     unsigned int free_page;             //该plane中有多少free page
     unsigned int ers_invalid;           //记录该plane中擦除失效的块数
     unsigned int active_block;          //if a die has a active block, 该项表示其物理块号
@@ -288,31 +291,36 @@ struct blk_info{
     unsigned int invalid_page_num;     //记录该块中失效页的个数，同上
     int last_write_page;               //记录最近一次写操作执行的页数,-1表示该块没有一页被写过
     struct page_info *page_head;       //记录每一子页的状态
-    // >>>>>>>>>>> 新增 RTD 相關欄位 <<<<<<<<<<<
-    int pv_class;              // 製程變異類別 (1=弱, 2=中, 3=強)
-    long long expected_t_ret;  // 預期的資料保留時間 (單位：秒)
-    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 };
 
 
 struct page_info{                      //lpn记录该物理页存储的逻辑页，当该逻辑页有效时，valid_state大于0，free_state大于0；
     int valid_state;                   //indicate the page is valid or invalid
     int free_state;                    //each bit indicates the subpage is free or occupted. 1 indicates that the bit is free and 0 indicates that the bit is used
-    unsigned int lpn;                 
+    unsigned int lpn;
     unsigned int written_count;        //记录该页被写的次数
 };
 
 
 struct dram_info{
-    unsigned int dram_capacity;     
+    unsigned int dram_capacity;
     int64_t current_time;
 
-    struct dram_parameter *dram_paramters;      
+    struct dram_parameter *dram_paramters;
     struct map_info *map;
-    struct buffer_info *buffer; 
+    struct buffer_info *buffer;
 
 };
 
+
+struct refresh_cursor {
+    unsigned int channel;
+    unsigned int chip;
+    unsigned int die;
+    unsigned int plane;
+    unsigned int block;
+    unsigned int page;
+};
 
 /*********************************************************************************************
  *buffer中的已写回的页的管理方法:在buffer_info中维持一个队列:written。这个队列有队首，队尾。
@@ -328,10 +336,10 @@ typedef struct buffer_group{
     struct buffer_group *LRU_link_next;	// next node in LRU list
     struct buffer_group *LRU_link_pre;	// previous node in LRU list
 
-    unsigned int group;                 //the first data logic sector number of a group stored in buffer 
+    unsigned int group;                 //the first data logic sector number of a group stored in buffer
     unsigned int stored;                //indicate the sector is stored in buffer or not. 1 indicates the sector is stored and 0 indicate the sector isn't stored.EX.  00110011 indicates the first, second, fifth, sixth sector is stored in buffer.
     unsigned int dirty_clean;           //it is flag of the data has been modified, one bit indicates one subpage. EX. 0001 indicates the first subpage is dirty
-    int flag;			                //indicates if this node is the last 20% of the LRU list	
+    int flag;			                //indicates if this node is the last 20% of the LRU list
 }buf_node;
 
 
@@ -378,8 +386,8 @@ struct request{
 
 struct sub_request{
     unsigned int lpn;                  //这里表示该子请求的逻辑页号
-    unsigned int ppn;                  //分配那个物理子页给这个子请求。在multi_chip_page_mapping中，产生子页请求时可能就知道psn的值，其他时候psn的值由page_map_read,page_map_write等FTL最底层函数产生。 
-    unsigned int operation;            //表示该子请求的类型，除了读1 写0，还有擦除，two plane等操作 
+    unsigned int ppn;                  //分配那个物理子页给这个子请求。在multi_chip_page_mapping中，产生子页请求时可能就知道psn的值，其他时候psn的值由page_map_read,page_map_write等FTL最底层函数产生。
+    unsigned int operation;            //表示该子请求的类型，除了读1 写0，还有擦除，two plane等操作
     int size;
 
     unsigned int current_state;        //表示该子请求所处的状态，见宏定义sub request
@@ -417,7 +425,7 @@ struct parameter_value{
     unsigned int channel_number;    //记录SSD中有多少个通道，每个通道是单独的bus
     unsigned int chip_channel[100]; //设置SSD中channel数和每channel上颗粒的数量
 
-    unsigned int die_chip;    
+    unsigned int die_chip;
     unsigned int plane_die;
     unsigned int block_plane;
     unsigned int page_block;
@@ -437,7 +445,7 @@ struct parameter_value{
     float gc_threshold;             //当达到这个阈值时，开始GC操作，在主动写策略中，开始GC操作后可以临时中断GC操作，服务新到的请求；在普通策略中，GC不可中断
 
     double operating_current;       //NAND FLASH的工作电流单位是uA
-    double supply_voltage;	
+    double supply_voltage;
     double dram_active_current;     //cpu sdram work current   uA
     double dram_standby_current;    //cpu sdram work current   uA
     double dram_refresh_current;    //cpu sdram work current   uA
@@ -461,13 +469,13 @@ struct parameter_value{
     int allocation_scheme;          //记录分配方式的选择，0表示动态分配，1表示静态分配
     int static_allocation;          //记录是那种静态分配方式，如ICS09那篇文章所述的所有静态分配方式
     int dynamic_allocation;         //记录动态分配的方式
-    int advanced_commands;  
+    int advanced_commands;
     int ad_priority;                //record the priority between two plane operation and interleave operation
     int ad_priority2;               //record the priority of channel-level, 0 indicates that the priority order of channel-level is highest; 1 indicates the contrary
     int greed_CB_ad;                //0 don't use copyback advanced commands greedily; 1 use copyback advanced commands greedily
     int greed_MPW_ad;               //0 don't use multi-plane write advanced commands greedily; 1 use multi-plane write advanced commands greedily
     int aged;                       //1表示需要将这个SSD变成aged，0表示需要将这个SSD保持non-aged
-    float aged_ratio; 
+    float aged_ratio;
     int queue_length;               //请求队列的长度限制
 
     struct ac_time_characteristics time_characteristics;
@@ -476,13 +484,13 @@ struct parameter_value{
 /********************************************************
  *mapping information,state的最高位表示是否有附加映射关系
  *********************************************************/
-struct entry{                       
+struct entry{
     unsigned int pn;                //物理号，既可以表示物理页号，也可以表示物理子页号，也可以表示物理块号
     int state;                      //十六进制表示的话是0000-FFFF，每位表示相应的子页是否有效（页映射）。比如在这个页中，0，1号子页有效，2，3无效，这个应该是0x0003.
 };
 
 
-struct local{          
+struct local{
     unsigned int channel;
     unsigned int chip;
     unsigned int die;
@@ -495,7 +503,7 @@ struct local{
 
 struct gc_info{
     int64_t begin_time;            //记录一个plane什么时候开始gc操作的
-    int copy_back_count;    
+    int copy_back_count;
     int erase_count;
     int64_t process_time;          //该plane花了多少时间在gc操作上
     double energy_consumption;     //该plane花了多少能量在gc操作上
@@ -511,7 +519,7 @@ struct direct_erase{
 /**************************************************************************************
  *当产生一个GC操作时，将这个结构挂在相应的channel上，等待channel空闲时，发出GC操作命令
  ***************************************************************************************/
-struct gc_operation{          
+struct gc_operation{
     unsigned int chip;
     unsigned int die;
     unsigned int plane;
@@ -528,7 +536,7 @@ struct gc_operation{
  */
 typedef struct Dram_write_map
 {
-    unsigned int state; 
+    unsigned int state;
 }Dram_write_map;
 
 
