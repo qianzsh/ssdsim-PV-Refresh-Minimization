@@ -579,7 +579,7 @@ Status write_page(struct ssd_info *ssd,unsigned int channel,unsigned int chip,un
     ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].blk_head[active_block].page_head[last_write_page].written_count++;
     ssd->write_flash_count++;    
     *ppn=find_ppn(ssd,channel,chip,die,plane,active_block,last_write_page);
-
+    ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].blk_head[active_block].last_write_time = ssd->current_time;
     return SUCCESS;
 }
 
