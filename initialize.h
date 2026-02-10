@@ -287,6 +287,7 @@ struct blk_info{
     unsigned int free_page_num;        //记录该块中的free页个数，同上
     unsigned int invalid_page_num;     //记录该块中失效页的个数，同上
     int last_write_page;               //记录最近一次写操作执行的页数,-1表示该块没有一页被写过
+    int refresh_rank;                  //記錄塊在 Multiple-rank queue 中的 rank
     struct page_info *page_head;       //记录每一子页的状态
 };
 
