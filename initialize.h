@@ -528,6 +528,25 @@ typedef struct Dram_write_map
 }Dram_write_map;
 
 
+/**************************************************************************************
+ *建造一個 Multiple-rank queue ，用來管理不同 Rank 的 Blocks
+ ***************************************************************************************/
+struct multiple_rank_queue{
+    struct rank *rank1;       // rank one queue head
+};
+
+struct rank{
+    struct rank *next;      // rank+1
+    struct node *head;      // queue head
+    struct node *tail;      // queue tail 
+};
+
+struct node{
+    struct node *next;
+    struct blk_info *p_block;
+    long long expired_time;
+};
+
 struct ssd_info *initiation(struct ssd_info *);
 struct parameter_value *load_parameters(char parameter_file[30]);
 struct page_info * initialize_page(struct page_info * p_page);
